@@ -1,0 +1,36 @@
+# Dependency directories
+node_modules/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Build outputs
+build/
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# macOS files
+.DS_Store
+
+# Docker
+docker-data/
+*.tar
+
+# IDE/editor
+.vscode/
+.idea/
+
+# Coverage reports
+coverage/
+
+# Temporary files
+tmp/
+temp/
+
+# OS files
+Thumbs.db
