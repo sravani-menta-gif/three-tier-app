@@ -5,7 +5,7 @@ on:
     branches:
       - develop
       - main
-      - 'release/*'
+      - 'release/**'
 
   pull_request:
     branches:
@@ -14,21 +14,17 @@ on:
 
 jobs:
   validate-app:
-
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        service:
-          - frontend
-          - backend
+        service: [frontend, backend]
 
     defaults:
       run:
         working-directory: ${{ matrix.service }}
 
     steps:
-
       - name: Checkout Source
         uses: actions/checkout@v4
 
