@@ -1,0 +1,51 @@
+name: Application CI
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - 'release/*'
+
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  validate-app:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service:
+          - frontend
+          - backend
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.service }}
+
+    steps:
+
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Frontend
+        if: matrix.service == 'frontend'
+        run: npm run build
+
+      - name: Backend Validation
+        if: matrix.service == 'backend'
+        run: |
+          node --version
+          npm audit --audit-level=high || true
