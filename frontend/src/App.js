@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import API from './api';
 
 function App() {
+  console.log("Trigger CI")
+
   const [users, setUsers] = useState([]);
   const [name, setName] = useState('');
 
