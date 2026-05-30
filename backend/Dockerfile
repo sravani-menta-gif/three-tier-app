@@ -1,13 +1,16 @@
-FROM node:18-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
-COPY package.json .
+COPY package*.json ./
 
-RUN npm install
+RUN npm ci --omit=dev
 
 COPY . .
 
 EXPOSE 5000
 
-CMD ["npm", "start"]
+HEALTHCHECK --interval=30s --timeout=5s \
+  CMD wget --spider http://localhost:5000/api/health || exit 1
+
+CMD ["node", "server.js"]
