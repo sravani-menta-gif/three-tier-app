@@ -1,0 +1,44 @@
+name: Container Security Scan
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - 'release/**'
+
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  trivy-scan:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - service: frontend
+            context: ./frontend
+
+          - service: backend
+            context: ./backend
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build Image for Scan
+        run: |
+          docker build \
+            -t local-scan:${{ matrix.service }} \
+            ${{ matrix.context }}
+
+      - name: Run Trivy Scan
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: local-scan:${{ matrix.service }}
+          format: table
