@@ -42,3 +42,4 @@ jobs:
         with:
           image-ref: local-scan:${{ matrix.service }}
           format: table
+          severity: HIGH,CRITICAL
