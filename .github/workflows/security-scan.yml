@@ -38,7 +38,7 @@ jobs:
             ${{ matrix.context }}
 
       - name: Run Trivy Scan
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: local-scan:${{ matrix.service }}
           format: table
