@@ -1,0 +1,50 @@
+name: Image SBOM Generation
+
+on:
+  workflow_run:
+    workflows:
+      - Docker Build and Publish
+    types:
+      - completed
+
+jobs:
+  image-sbom:
+
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        image:
+          - frontend
+          - backend
+
+    steps:
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate Image SBOM
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:develop
+          format: cyclonedx
+          output: ${{ matrix.image }}-image-sbom.json
+
+      - name: Upload Image SBOM Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.image }}-image-sbom
+          path: ${{ matrix.image }}-image-sbom.json
+          retention-days: 30
