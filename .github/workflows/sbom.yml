@@ -1,0 +1,45 @@
+name: SBOM Generation
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - 'release/**'
+
+  pull_request:
+    branches:
+      - develop
+      - main
+      - 'release/**'
+
+jobs:
+  sbom:
+    name: Generate SBOM - ${{ matrix.component }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - frontend
+          - backend
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Generate CycloneDX SBOM
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: ./${{ matrix.component }}
+          format: cyclonedx
+          output: ${{ matrix.component }}-sbom.json
+
+      - name: Upload SBOM Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.component }}-sbom
+          path: ${{ matrix.component }}-sbom.json
+          retention-days: 30
