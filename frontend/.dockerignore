@@ -1,6 +1,7 @@
 node_modules
 build
 .git
-Dockerfile
-.dockerignore
+.github
+*.log
+.env
 npm-debug.log
