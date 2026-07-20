@@ -13,3 +13,6 @@ docker compose up --build
 Frontend: localhost:3000
 Backend: localhost:5000
 MySQL: localhost:3306
+
+## CI Verification
+LAST CI VERIFICATION: July 2026
