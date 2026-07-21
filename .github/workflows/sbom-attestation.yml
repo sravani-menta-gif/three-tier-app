@@ -1,0 +1,30 @@
+name: SBOM Attestation
+
+on:
+  workflow_run:
+    workflows:
+      - Image SBOM Generation
+    types:
+      - completed
+
+jobs:
+
+  sbom-attestation:
+
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        image:
+          - frontend
+          - backend

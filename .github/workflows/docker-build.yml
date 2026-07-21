@@ -77,6 +77,18 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Save Image Digest
+        run: |
+          mkdir -p digests
+          echo "${{ steps.build.outputs.digest }}" > digests/${{ matrix.image }}.txt
+
+      - name: Upload Image Digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.image }}-digest
+          path: digests/${{ matrix.image }}.txt
+          retention-days: 30
+
       - name: Sign Image
         env:
           COSIGN_EXPERIMENTAL: "true"
