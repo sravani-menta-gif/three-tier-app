@@ -36,7 +36,7 @@ services:
       DB_NAME: ${DB_NAME}
 
     ports:
-      - "5000:5000"
+      - "5001:5000"
 
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:5000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
