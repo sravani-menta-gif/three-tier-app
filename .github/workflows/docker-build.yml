@@ -15,6 +15,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
 
     strategy:
       matrix:
@@ -48,6 +49,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -62,6 +66,7 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and Push Docker Image
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.context }}
@@ -71,3 +76,29 @@ jobs:
 
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Save Image Digest
+        run: |
+          mkdir -p digests
+          echo "${{ steps.build.outputs.digest }}" > digests/${{ matrix.image }}.txt
+
+      - name: Upload Image Digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.image }}-digest
+          path: digests/${{ matrix.image }}.txt
+          retention-days: 30
+
+      - name: Sign Image
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+        run: |
+          cosign sign --yes \
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}@${{ steps.build.outputs.digest }}
+
+      - name: Verify Signature
+        run: |
+          cosign verify \
+            --certificate-oidc-issuer=https://token.actions.githubusercontent.com \
+            --certificate-identity-regexp="https://github.com/.*" \
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}@${{ steps.build.outputs.digest }}
