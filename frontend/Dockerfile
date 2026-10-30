@@ -14,6 +14,8 @@ RUN npm run build
 # ---------- Runtime Stage ----------
 FROM nginx:stable-alpine
 
+RUN apk upgrade --no-cache brotli-libs
+
 RUN rm -rf /usr/share/nginx/html/*
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
