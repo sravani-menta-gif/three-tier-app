@@ -108,5 +108,5 @@ jobs:
         run: |
           cosign verify \
             --certificate-oidc-issuer=https://token.actions.githubusercontent.com \
-            --certificate-identity-regexp="https://github.com/.*" \
+            --certificate-identity-regexp='^https://github\.com/sravani-menta-gif/three-tier-app/\.github/workflows/docker-build\.yml@refs/heads/(develop|main|release/.+)$' \
             ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}@${{ steps.build.outputs.digest }}
