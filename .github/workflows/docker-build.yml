@@ -6,6 +6,7 @@ on:
       - develop
       - main
       - 'release/**'
+      - 'feature/slsa-build-provenance'
 
 jobs:
   docker:
