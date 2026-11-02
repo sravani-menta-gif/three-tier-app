@@ -26,6 +26,13 @@ jobs:
     steps:
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: v3.1.4
+
+      - name: Confirm Cosign Version and Bundle Support
+        run: |
+          cosign version
+          cosign attest --help | grep -F -- '--bundle'
 
       - name: Login to GHCR
         uses: docker/login-action@v3
