@@ -64,7 +64,17 @@ jobs:
           IMAGE_REF: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}@${{ steps.digest.outputs.digest }}
           IMAGE_NAME: ${{ matrix.image }}
         run: |
-          cosign attest --yes --type cyclonedx --predicate "${IMAGE_NAME}-image-sbom.json" "$IMAGE_REF"
+          cosign attest --yes --type cyclonedx \
+            --predicate "${IMAGE_NAME}-image-sbom.json" \
+            --bundle "${IMAGE_NAME}-image-sbom.sigstore.json" \
+            "$IMAGE_REF"
+
+      - name: Upload SBOM Attestation Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.image }}-sbom-attestation-bundle
+          path: ${{ matrix.image }}-image-sbom.sigstore.json
+          retention-days: 30
 
       - name: Verify SBOM Attestation
         env:
