@@ -16,6 +16,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
+      attestations: write
 
     strategy:
       matrix:
@@ -71,11 +72,32 @@ jobs:
         with:
           context: ${{ matrix.context }}
           push: true
+          provenance: mode=max
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Generate SLSA Build Provenance
+        uses: actions/attest@v4
+        with:
+          subject-name: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+      - name: Verify SLSA Build Provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh attestation verify \
+            "oci://ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}@${{ steps.build.outputs.digest }}" \
+            --repo "${{ github.repository }}" \
+            --signer-workflow "github.com/${{ github.repository }}/.github/workflows/docker-build.yml" \
+            --source-ref "${{ github.ref }}" \
+            --source-digest "${{ github.sha }}" \
+            --cert-oidc-issuer "https://token.actions.githubusercontent.com" \
+            --predicate-type "https://slsa.dev/provenance/v1"
 
       - name: Save Image Digest
         run: |
