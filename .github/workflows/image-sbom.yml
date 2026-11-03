@@ -57,6 +57,7 @@ jobs:
         with:
           image-ref: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}@${{ steps.digest.outputs.digest }}
           format: cyclonedx
+          scanners: vuln
           output: ${{ matrix.image }}-image-sbom.json
 
       - name: Upload Image SBOM Artifact
